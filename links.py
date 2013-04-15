@@ -1,5 +1,5 @@
 import motor
-import datetime.datetime
+from datetime import datetime
 
 def get_mongo_db(connection_uri=None):
     '''
@@ -26,25 +26,31 @@ def get_users_links(db, user):
     try:
         user_id = int(user)
     except (TypeError, ValueError):
+        user_id = user.get('_id', None)
+    if user_id is None:
+        return None
         
-    return get_link_list(db, {'owner':user_id})
+    return get_link_list(db, {'owner': user_id})
 
 def get_users_list(db, query={}):
     return MongoIterator(db.users.find(query), User)
+
+def get_user(db, query={}):
+    return User(db.users.get_one(query))
 
 
 class MongoIterator:
     '''
     Gets a mongo cursor and returns an Iterator that will transform each document into it's corresponding class
     '''
-    def __init__(self, cursor, class=None):
+    def __init__(self, cursor, class_type=None):
         self.cursor = cursor
-        self.class = class
+        self.class_type = class_type
 
     def next(self):
-        if self.cursor.fetch_next() !== False:
-            if self.class != None:
-                return self.class(self.cursor.next_object())
+        if self.cursor.fetch_next() != False:
+            if self.class_type != None:
+                return self.class_type(self.cursor.next_object())
             else:
                 return self.cursor.next_object()
             
@@ -111,3 +117,8 @@ class User:
             db.users.remove({'_id': self._id}, callback=callback)
         else:
             return callback()
+
+    def __repr__(self):
+        res = self._to_dict()
+        res.pop('password')
+        return res
