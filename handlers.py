@@ -55,14 +55,38 @@ class User(RequestHandler):
         '''
         Gets a list of users.
         '''
-        
+        users = get_users_list(self.db)
+        self.set_status(200)
+        self.write("[")
+        first = True
+        for u in users:
+            if not first:
+                self.write(',')
+            else:
+                first = False
+                
+            self.write(u)
+
+        self.write("]")
 
 class Link(RequestHandler):
     def get(self):
         '''
         Get latest links
         '''
-        pass
+        links = get_links_list(self.db, limit=10)
+        self.set_status(200)
+        self.write("[")
+        first = True
+        for l in links:
+            if not first:
+                self.write(',')
+            else:
+                first = False
+                
+            self.write(l)
+
+        self.write("]")
 
     def post(self):
         '''
