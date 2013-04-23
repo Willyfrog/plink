@@ -47,6 +47,7 @@ class User(RequestHandler):
         '''
         params = self.request.arguments.copy()
         #FIXME: validate parameters
+        #FIXME: autenticar mediante sesion o token
         new_user = User(params)
         self.set_status(201)
         self.write(new_user)
@@ -92,11 +93,29 @@ class Link(RequestHandler):
         '''
         Add a new link
         '''
-        pass
+        values = {
+            'url': self.get_argument('url'),
+            'owner': 1, #TODO: usar sesion
+            'description': self.get_argument('description', ''),
+            'banned': False}
+        
+            
 
 class PreciseLink(RequestHandler):
     def get(self, id):
         '''
         get info from a link
+        '''
+        #FIXME: cerrar a solo publicos o propios
+        link = get_link({'id':id})
+        if link is not None:
+            raise HTTPError(404, "Link not found")
+        self.set_status(200)
+        self.write(link)
+
+class Authenticate(RequestHandler):
+    def post(self):
+        '''
+        validate user
         '''
         pass
