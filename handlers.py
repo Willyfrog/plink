@@ -14,7 +14,8 @@ class PreciseUser(RequestHandler):
         '''
         res = links.get_user({'id':id})
         if res is not None:
-            self.write(200, res)
+            self.set_status(200)
+            self.write(res)
         raise HTTPError(404, "User not found")
 
     def put(self, id):
@@ -56,7 +57,8 @@ class User(RequestHandler):
         '''
         Gets a list of users.
         '''
-        users = get_users_list(self.db)
+        db = self.settings['db']
+        users = links.get_users_list(db)
         self.set_status(200)
         self.write("[")
         first = True
@@ -75,11 +77,12 @@ class Link(RequestHandler):
         '''
         Get latest links
         '''
-        links = get_links_list(self.db, limit=10)
+        db = self.settings['db']
+        link_list = links.get_link_list(db, limit=10)
         self.set_status(200)
         self.write("[")
         first = True
-        for l in links:
+        for l in link_list:
             if not first:
                 self.write(',')
             else:
@@ -107,7 +110,7 @@ class PreciseLink(RequestHandler):
         get info from a link
         '''
         #FIXME: cerrar a solo publicos o propios
-        link = get_link({'id':id})
+        link = links.get_link({'id':id})
         if link is not None:
             raise HTTPError(404, "Link not found")
         self.set_status(200)

@@ -47,10 +47,15 @@ class MongoIterator:
         self.cursor = cursor
         self.class_type = class_type
 
+    def __iter__(self):
+        return self
+        
     def next(self):
-        if self.cursor.fetch_next() != False:
+        new_doc = self.cursor.next_object()
+        if new_doc is not None:
+            print "new_doc %s" % new_doc
             if self.class_type != None:
-                return self.class_type(self.cursor.next_object())
+                return self.class_type(new_doc)
             else:
                 return self.cursor.next_object()
             
@@ -61,18 +66,18 @@ class MongoIterator:
 class Link:
 
     def __init__(self, values):
-        url = validate_url(values['url'])
-        owner = values['owner']
-        description = values['description']
-        banned = values.get('banned', False)
-        _id = values.get('_id', None)
+        self.url = validate_url(values['url'])
+        self.owner = values['owner']
+        self.description = values['description']
+        self.banned = values.get('banned', False)
+        self._id = values.get('_id', None)
 
     def _to_dict(self):
         res = {'url': self.url,
                'owner': self.owner,
                'description': self.description,
                'banned': self.banned}
-        if self.__id is not None:
+        if self._id is not None:
             res['_id'] = self._id
             
         return res
@@ -89,13 +94,13 @@ class Link:
 class User:
 
     def __init__(self, values):
-        login = values['login']
-        password = values['password']
-        date_created = values.get('date_created', datetime.now())
-        email = values['email']
-        disabled = values.get('disabled', False)
-        admin = values.get('admin', False)
-        _id = values.get('_id', None)
+        self.login = values['login']
+        self.password = values['password']
+        self.date_created = values.get('date_created', datetime.now())
+        self.email = values['email']
+        self.disabled = values.get('disabled', False)
+        self.admin = values.get('admin', False)
+        self._id = values.get('_id', None)
 
     def _to_dict(self):
         res = {'login': self.login,
@@ -104,7 +109,7 @@ class User:
                'admin': self.admin,
                'disabled': self.disabled}
         
-        if self.__id is not None:
+        if self._id is not None:
             res['_id'] = self._id
             
         return res
