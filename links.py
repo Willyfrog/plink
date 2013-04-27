@@ -1,5 +1,7 @@
 import motor
 from datetime import datetime
+from utils import parse_iso_datetime
+
 
 def get_mongo_db(connection_uri=None):
     '''
@@ -71,6 +73,8 @@ class Link:
         self.description = values['description']
         self.banned = values.get('banned', False)
         self._id = values.get('_id', None)
+        self.tags = values.get('tags', None)
+        self.date_added = parse_iso_datetime(datetime.values.get('date_added', None)) or datetime.utcnow() 
 
     def _to_dict(self):
         res = {'url': self.url,
@@ -96,7 +100,7 @@ class User:
     def __init__(self, values):
         self.login = values['login']
         self.password = values['password']
-        self.date_created = values.get('date_created', datetime.now())
+        self.date_created = parse_iso_datetime(values.get('date_created', None)) or datetime.utcnow()
         self.email = values['email']
         self.disabled = values.get('disabled', False)
         self.admin = values.get('admin', False)
