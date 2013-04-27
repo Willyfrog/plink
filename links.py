@@ -1,13 +1,22 @@
 import motor
 from datetime import datetime
 from utils import parse_iso_datetime
-
+import sys
+import pymongo
 
 def get_mongo_db(connection_uri=None):
     '''
     stablish a connection with the mongodb
     '''
-    client = motor.MotorClient(connection_uri).open_sync()
+    try:
+        client = motor.MotorClient(connection_uri).open_sync()
+    except pymongo.errors.ConnectionFailure:
+        if connection_uri is None:
+            print "Mongo is wasn't found on the default place, check if mongodb is running and if the application is properly configured"
+        else:
+            print "mongo wasn't found running in: %s" % connection_uri
+        sys.exit(-1)
+        
     db = client.plink_database
     return db
 
